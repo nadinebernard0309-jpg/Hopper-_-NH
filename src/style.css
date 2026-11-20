@@ -8,6 +8,9 @@ header a { color: #fff; margin-left: 18px; text-decoration: none; }
 section { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
 .cartes { display: flex; gap: 16px; flex-wrap: wrap; }
 .carte { flex: 1; min-width: 220px; background: #fff; border: 1px solid #E2DFD6; border-radius: 12px; padding: 20px; }
+details { background: #fff; border: 1px solid #E2DFD6; border-radius: 12px; padding: 14px 20px; margin-bottom: 10px; }
+summary { font-weight: 700; color: #141B52; cursor: pointer; }
+details p { margin: 10px 0 0; }
 form { display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
 input, textarea { font: inherit; padding: 10px; border: 1px solid #E2DFD6; border-radius: 8px; }
 button { font: inherit; font-weight: 700; background: #2537B8; color: #fff; border: 0; border-radius: 8px; padding: 10px; cursor: pointer; }
