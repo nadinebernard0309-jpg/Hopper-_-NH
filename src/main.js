@@ -1,9 +1,40 @@
 
-// Formulaire de contact : pour l'instant, il n'enregistre rien.
-// (Lundi, on le reliera à une base de données Supabase.)
-document.getElementById('contact-form').addEventListener('submit', (e) => {
+// Formulaire de contact : enregistre chaque message dans la table Supabase "messages".
+// La clé "publishable" est faite pour être visible dans le site : elle permet seulement
+// ce que les règles d'accès autorisent (ici, ajouter un message, jamais les lire).
+const SUPABASE_URL = 'https://hvqmltijpdcrkeaomhrc.supabase.co'
+const SUPABASE_CLE = 'sb_publishable_D6k4_TeEp0figtE0xcrkfA_ZVobfKqg'
+
+const contactForm = document.getElementById('contact-form')
+
+contactForm.addEventListener('submit', async (e) => {
   e.preventDefault()
-  alert("Ce formulaire n'enregistre rien pour l'instant.")
+  const bouton = contactForm.querySelector('button')
+  const donnees = new FormData(contactForm)
+  bouton.disabled = true
+  try {
+    const reponse = await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_CLE,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({
+        nom: donnees.get('nom'),
+        email: donnees.get('email'),
+        message: donnees.get('message'),
+      }),
+    })
+    if (!reponse.ok) throw new Error(`HTTP ${reponse.status} ${await reponse.text()}`)
+    contactForm.reset()
+    alert('Merci, votre message a bien été envoyé !')
+  } catch (erreur) {
+    console.error('Formulaire de contact :', erreur)
+    alert("Désolé, le message n'a pas pu être envoyé. Réessayez plus tard.")
+  } finally {
+    bouton.disabled = false
+  }
 })
 
 // Chatbot : pour l'instant, il répond toujours la même chose.
