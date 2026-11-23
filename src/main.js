@@ -1,9 +1,10 @@
 
 // Formulaire de contact : enregistre chaque message dans la table Supabase "messages".
-// La clé "publishable" est faite pour être visible dans le site : elle permet seulement
-// ce que les règles d'accès autorisent (ici, ajouter un message, jamais les lire).
-const SUPABASE_URL = 'https://hvqmltijpdcrkeaomhrc.supabase.co'
-const SUPABASE_CLE = 'sb_publishable_D6k4_TeEp0figtE0xcrkfA_ZVobfKqg'
+// L'URL et la clé "publishable" viennent du fichier .env (voir .env.example).
+// Cette clé permet seulement ce que les règles d'accès autorisent
+// (ici, ajouter un message, jamais les lire).
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_CLE = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 
 const contactForm = document.getElementById('contact-form')
 
