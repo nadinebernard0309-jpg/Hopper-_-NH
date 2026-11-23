@@ -38,7 +38,7 @@ contactForm.addEventListener('submit', async (e) => {
   }
 })
 
-// Chatbot : pour l'instant, il répond toujours la même chose.
+// Chatbot : répond grâce à Claude, via la fonction Supabase "chatbot".
 const chatBouton = document.getElementById('chat-bouton')
 const chatFenetre = document.getElementById('chat-fenetre')
 const chatMessages = document.getElementById('chat-messages')
@@ -67,31 +67,34 @@ document.getElementById('chat-form').addEventListener('submit', (e) => {
   demanderAuBot(texte)
 })
 
-// Envoie la question au webhook Make (champ "question") et affiche sa réponse.
-const WEBHOOK_MAKE = 'https://hook.eu1.make.com/hja941ej4e1l2qkig2w5faynr5ei4lrn'
+// Envoie la question à la fonction Supabase "chatbot", qui interroge Claude avec
+// la clé API Anthropic gardée côté serveur (jamais dans le site), puis affiche la réponse.
+// La clé "anon" sert seulement à passer la vérification de Supabase : elle est publique.
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 async function demanderAuBot(question) {
+  const attente = document.createElement('div')
+  attente.className = 'chat-msg bot'
+  attente.textContent = '…'
+  chatMessages.append(attente)
+  chatMessages.scrollTop = chatMessages.scrollHeight
   try {
-    const reponse = await fetch(WEBHOOK_MAKE, {
+    const reponse = await fetch(`${SUPABASE_URL}/functions/v1/chatbot`, {
       method: 'POST',
-      body: new URLSearchParams({ question }),
+      headers: {
+        Authorization: `Bearer ${SUPABASE_ANON}`,
+        apikey: SUPABASE_ANON,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question }),
     })
-    if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`)
-    const texte = (await reponse.text()).trim()
-    ajouterMessage(lireReponse(texte) || 'Merci, on vous répond bientôt', 'bot')
+    if (!reponse.ok) throw new Error(`HTTP ${reponse.status} ${await reponse.text()}`)
+    const { reponse: texte } = await reponse.json()
+    attente.remove()
+    ajouterMessage(texte || 'Merci, on vous répond bientôt', 'bot')
   } catch (erreur) {
     console.error('Chatbot :', erreur)
+    attente.remove()
     ajouterMessage("Désolé, le service est indisponible pour l'instant.", 'bot')
-  }
-}
-
-// La réponse peut être du texte simple ou du JSON ({ "reponse": "..." } par exemple).
-function lireReponse(texte) {
-  try {
-    const donnees = JSON.parse(texte)
-    if (typeof donnees === 'string') return donnees
-    return donnees.reponse ?? donnees.answer ?? donnees.response ?? donnees.message ?? texte
-  } catch {
-    return texte
   }
 }
